@@ -51,6 +51,13 @@ function biminiItemDecoder () {
 
 		return this;
 	};
+	//Tests user input from testInput box
+	this.test = function (testInput) {
+
+		var array = [[testInput]];
+
+		this.loop(array);
+	}
 	//Returns a string with some characters changed to '*'
 	this.makeUnavailable = function (searchTerm, str) {
 
