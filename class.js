@@ -159,10 +159,10 @@ function biminiItemDecoder () {
 				};
 			};
 			
-			this.checkAtPos0(searchTerm, str, '4S') //Check for Sun-DURA Fabric
+			this.checkAtPos0(searchTerm, str, '4S') 	//Check for Sun-DURA Fabric
 				.checkAtEnd(searchTerm, str, 'P' )		//Check for Poly-Guard
-				.checkAtPos0(searchTerm, str, 'C') //Check for camo
-				.checkForStorageBoot(searchTerm, str); 	//Check for Storage Boot 'B'
+				.checkAtPos0(searchTerm, str, 'C') 		//Check for camo
+				.checkForStorageBoot(searchTerm, str);	//Check for Storage Boot 'B'
 		};
 
 		return this;
