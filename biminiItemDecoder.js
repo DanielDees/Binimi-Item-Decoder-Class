@@ -1,13 +1,8 @@
 /*
-	Insert Comments here...
+	This file contains the Bimini-Item-Decoder 
+		and the item object which has the attributes
+		of the item being sold with the given partID
 */
-
-//For the checking functions
-var pos = [-1, -1];
-
-//Lists
-var objectList = [];
-var unAssignables = [];
 
 //The object constructor that attributes are assigned to.
 function item () {
@@ -31,6 +26,13 @@ function item () {
 //Decodes the product ID and outputs the characteristics of any item listed.
 function biminiItemDecoder () {
 
+	//For the checking functions
+	this.pos = [-1, -1];
+
+	//Lists
+	this.objectList = [];
+	this.unAssignables = [];
+
 	//Parses local CSVFile
 	this.parseCSVFile = function () {
 	
@@ -42,20 +44,39 @@ function biminiItemDecoder () {
 			complete: function(results) {
 
 				//Assign values to data
-				loop(results.data);
+				this.loop(results.data);
 			}
 		});
 
 		return this;
 	};
+	//Returns a string with some characters changed to '*'
+	this.makeUnavailable = function (searchTerm, str) {
+
+		//Find RegEx
+		this.pos[0] = str.indexOf(searchTerm);
+
+		//Remove RegEx
+		var begin = str.substring(0, this.pos[0]);
+		var end = str.substring(this.pos[0] + searchTerm.length);
+		var changed = '';
+
+		//Label Removed RegEx area
+		for (var i = 0; i < searchTerm.length; i++) { changed += '*'; };
+		
+		//Rebuild partID
+		str = begin + changed + end;
+
+		return str;
+	}
 	//Checks a string for character(s) at the beginning.
 	this.checkAtPos0 = function (searchTerm, str, letter) {
 
 		if (searchTerm == letter) {
 
-			pos[0] = str.indexOf(letter);
+			this.pos[0] = str.indexOf(letter);
 
-			if (pos[0] != 0) { pos[0] = -1; };
+			if (this.pos[0] != 0) { this.pos[0] = -1; };
 		};
 
 		return this;
@@ -65,25 +86,48 @@ function biminiItemDecoder () {
 
 		if (searchTerm == letter) {
 
-			pos[0] = str.indexOf(letter);
+			this.pos[0] = str.indexOf(letter);
 
-			if (pos[0] != str.length - 1) { pos[0] = -1; };
+			if (this.pos[0] != str.length - 1) { this.pos[0] = -1; };
 		};
 
 		return this;
 	};
+	//Returns a value of -1 if not Full Stainless
+	this.checkForFullStainless = function (searchTerm, str) {
+
+		if (searchTerm == 'S') {
+
+			//Skip pos[0] = 'S' which is Sun-DURA
+			this.pos[0] = str.indexOf('S', 1);
+			this.pos[1] = str.indexOf('FS');
+
+			//Make sure not Free Standing
+			if (this.pos[0] == this.pos[1] + 1) {
+
+				//Restart starting after 'FS'
+				this.pos[0] = str.indexOf('S', this.pos[1] + 2);
+			};
+
+			//Make sure not Sun-Dura (for partID's like "10000S or 510S")
+			if (this.pos[0] == str.length - 1 && str.indexOf('*') == -1) { this.pos[0] = -1; };
+		};
+
+		//Return value so asssignObjectValues can get a true/false
+		return this.pos[0];
+	}
 	this.checkForStorageBoot = function (searchTerm, str) {
 
 		if (searchTerm == 'B') {
 
-			pos[0] = str.indexOf('B');
-			pos[1] = str.indexOf('BS');
+			this.pos[0] = str.indexOf('B');
+			this.pos[1] = str.indexOf('BS');
 
 			//Make sure not Storage Buggy
-			if (pos[0] == pos[1]) { 
+			if (this.pos[0] == this.pos[1]) { 
 
 				//Restart starting after 'BS'
-				pos[0] = str.indexOf('B', pos[0] + 1);
+				this.pos[0] = str.indexOf('B', this.pos[0] + 1);
 			};
 		};
 
@@ -95,34 +139,30 @@ function biminiItemDecoder () {
 		//Item passed
 		var str = listItem;
 
-		//Find RegEx Numerical Position
-		pos[0] = str.indexOf(searchTerm);
+		//Find RegEx Numerical this.Position
+		this.pos[0] = str.indexOf(searchTerm);
 
 		//If RegEx has been detected
-		if (pos[0] != -1) {
+		if (this.pos[0] != -1) {
 
 			if (searchTerm == 'S') {
 
 				//Check for Full Stainless 
-				checkForFullStainless(searchTerm, str);
+				this.checkForFullStainless(searchTerm, str);
 
 				//Check for Sun-DURA
-				if (pos[0] == -1) { 
+				if (this.pos[0] == -1) { 
 
-					checkAtPos0(searchTerm, str, 'S'); 
+					this.checkAtthis.Pos0(searchTerm, str, 'S'); 
 
-					if (pos[0] == -1) { checkAtEnd(searchTerm, str, 'S'); };
+					if (this.pos[0] == -1) { this.checkAtEnd(searchTerm, str, 'S'); };
 				};
 			};
-
-			//Check for Sun-DURA Fabric
-			checkAtPos0(searchTerm, str, '4S');
-			//Check for Poly-Guard
-			checkAtEnd(searchTerm, str, 'P');
-			//Check for camo
-			checkAtPos0(searchTerm, str, 'C');
-			//Check for Storage Boot 'B'
-			checkForStorageBoot(searchTerm, str);
+			
+			this.checkAtthis.Pos0(searchTerm, str, '4S') //Check for Sun-DURA Fabric
+				.checkAtEnd(searchTerm, str, 'P' )		//Check for Poly-Guard
+				.checkAtthis.Pos0(searchTerm, str, 'C') //Check for camo
+				.checkForStorageBoot(searchTerm, str); 	//Check for Storage Boot 'B'
 		};
 
 		return this;
@@ -134,14 +174,14 @@ function biminiItemDecoder () {
 		for (var i = 0; i < list.length; i++) {
 
 			//Create new Object
-			objectList.push(new item());
+			this.objectList.push(new item());
 			
 			//Assign part ID to object
-			objectList[objectList.length - 1].partID = list[i][0];
-			objectList[objectList.length - 1].availablePartID = list[i][0];
+			this.objectList[this.objectList.length - 1].partID = list[i][0];
+			this.objectList[this.objectList.length - 1].availablePartID = list[i][0];
 
 			//For all unassignable objects
-			unAssignables.push(list[i][0]);
+			this.unAssignables.push(list[i][0]);
 
 			//To check if value was assigned later.
 			var assigned = false;
@@ -153,29 +193,29 @@ function biminiItemDecoder () {
 			for (var j = 0; j < searchTerm.length; j++) { 
 
 				//Detect if item attribute exists
-				searchFor(searchTerm[j], objectList[objectList.length - 1].availablePartID); 
+				this.searchFor(searchTerm[j], this.objectList[this.objectList.length - 1].availablePartID); 
 
 				//Assign object attributes
-				if (pos[0] != -1) { 
+				if (this.pos[0] != -1) { 
 
-					assignObjectValues(searchTerm[j], objectList.length - 1);
+					this.assignObjectValues(searchTerm[j], this.objectList.length - 1);
 					assigned = true;	
 				};
 			};
 
 			//If attributes are assigned to object.
-			if (assigned) { unAssignables.pop(); };
+			if (assigned) { this.unAssignables.pop(); };
 
 			//If no attributes assigned to object.
-			if (!assigned) { objectList.pop(); };
+			if (!assigned) { this.objectList.pop(); };
 		};
 
 		//Output Object information to console
-		console.log(objectList);
-		console.log(unAssignables);
-		console.log("Total items        " + (objectList.length + unAssignables.length));
-		console.log("Identified         " + objectList.length + " items.");
-		console.log("Unable to identify " + unAssignables.length + " items.");
+		console.log(this.objectList);
+		console.log(this.unAssignables);
+		console.log("Total items        " + (this.objectList.length + this.unAssignables.length));
+		console.log("Identified         " + this.objectList.length + " items.");
+		console.log("Unable to identify " + this.unAssignables.length + " items.");
 
 		return this;
 	};
@@ -184,83 +224,83 @@ function biminiItemDecoder () {
 
 		if (searchTerm == 'A') { 
 
-			objectList[i].fabric = "Sunbrella"; 
+			this.objectList[i].fabric = "Sunbrella"; 
 		};
 		if (searchTerm == 'A26') {
 
-			objectList[i].fabric = "9.25 oz. Sunbrella Acrylic for Tower Mounting Bimini Top";
+			this.objectList[i].fabric = "9.25 oz. Sunbrella Acrylic for Tower Mounting Bimini Top";
 		};
-		if (searchTerm == '4S' || (searchTerm == 'S' && checkForFullStainless(searchTerm, objectList[i].availablePartID) == -1)) { 
+		if (searchTerm == '4S' || (searchTerm == 'S' && this.checkForFullStainless(searchTerm, this.objectList[i].availablePartID) == -1)) { 
 
-			objectList[i].fabric = "Sun-DURA";
+			this.objectList[i].fabric = "Sun-DURA";
 		};
-		if (searchTerm == 'S' && checkForFullStainless(searchTerm, objectList[i].availablePartID) != -1) {
+		if (searchTerm == 'S' && this.checkForFullStainless(searchTerm, this.objectList[i].availablePartID) != -1) {
 
-			objectList[i].steel = "Full";
+			this.objectList[i].steel = "Full";
 		};
 		if (searchTerm == 'V') { 
 
-			objectList[i].fabric = "Vinyl";
+			this.objectList[i].fabric = "Vinyl";
 		};
 		if (searchTerm == 'PG' || searchTerm == 'P') { 
 
-			objectList[i].fabric = "Poly-Guard";
+			this.objectList[i].fabric = "Poly-Guard";
 		};
 		if (searchTerm == 'B') { 
 
-			objectList[i].boot = 1;
+			this.objectList[i].boot = 1;
 		};
 		if (searchTerm == 'BS') { 
 
-			objectList[i].buggy = 1;
-			objectList[i].lightCut = 1;
+			this.objectList[i].buggy = 1;
+			this.objectList[i].lightCut = 1;
 		};
 		if (searchTerm == 'FS') {
 
-			objectList[i].freeStanding = 1;
-			objectList[i].lightCut = 1;
+			this.objectList[i].freeStanding = 1;
+			this.objectList[i].lightCut = 1;
 		};
 		if (searchTerm == 'ST') {
 
-			objectList[i].stripeAvailable = 1;
+			this.objectList[i].stripeAvailable = 1;
 		};
 		if (searchTerm == '(SS)' || searchTerm == '(SSS)') { 
 
-			objectList[i].steel = 'fittings';
+			this.objectList[i].steel = 'fittings';
 		};
 		if (searchTerm == '(8SQ)') { 
 
-			objectList[i].steel = 0;
-			objectList[i].buggy = 1;
-			objectList[i].freeStanding = 1;
-			objectList[i].lightCut = 1;
-			objectList[i].square = 1;
+			this.objectList[i].steel = 0;
+			this.objectList[i].buggy = 1;
+			this.objectList[i].freeStanding = 1;
+			this.objectList[i].lightCut = 1;
+			this.objectList[i].square = 1;
 		};
 		if (searchTerm == '(9SQ)' || searchTerm == '(10SQ)') {
 
-			objectList[i].steel = 0;
-			objectList[i].lightCut = 1;
+			this.objectList[i].steel = 0;
+			this.objectList[i].lightCut = 1;
 		};
 		if (searchTerm == 'U') {
 
-			objectList[i].upsTop = 1;
+			this.objectList[i].upsTop = 1;
 		};
 		if (searchTerm == 'L') {
 
-			objectList[i].lightCut = 1;
+			this.objectList[i].lightCut = 1;
 		};
 		if (searchTerm == 'T') {
 
-			objectList[i].truckable = 1;
+			this.objectList[i].truckable = 1;
 		};
 		if (searchTerm == 'C') {
 
-			objectList[i].camo = 1;
-			objectList[i].blackFrame = 1;
-			objectList[i].availablePartID = makeUnavailable('B', objectList[i].availablePartID);
+			this.objectList[i].camo = 1;
+			this.objectList[i].blackFrame = 1;
+			this.objectList[i].availablePartID = this.makeUnavailable('B', this.objectList[i].availablePartID);
 		};
 
-		objectList[i].availablePartID = makeUnavailable(searchTerm, objectList[i].availablePartID);
+		this.objectList[i].availablePartID = this.makeUnavailable(searchTerm, this.objectList[i].availablePartID);
 
 		return this;
 	};
@@ -271,17 +311,17 @@ function biminiItemDecoder () {
 		var unIdentifiedItems = 0;
 
 		//Search through identified items
-		for (var i = 0; i < objectList.length; i++) {
+		for (var i = 0; i < this.objectList.length; i++) {
 
 			//Item to find RegEx in
-			var listItem = objectList[i].partID;
-			var availableListItem = objectList[i].availablePartID;
+			var listItem = this.objectList[i].partID;
+			var availableListItem = this.objectList[i].availablePartID;
 
 			//Find RegEx
-			searchFor(userInput, listItem);
+			this.searchFor(userInput, listItem);
 
 			//If RegEx detected
-			if (pos[0] != -1) {
+			if (this.pos[0] != -1) {
 
 				console.log("Item #" + i + ": " + listItem);
 				console.log("Item #" + i + ": " + availableListItem + " is available");
@@ -289,16 +329,16 @@ function biminiItemDecoder () {
 			};
 		};
 		//Search through unidentified items
-		for (var j = 0; j < unAssignables.length; j++) {
+		for (var j = 0; j < this.unAssignables.length; j++) {
 			
 			//Item to find RegEx in
-			var listItem = unAssignables[j];
+			var listItem = this.unAssignables[j];
 
 			//Find RegEx
-			searchFor(userInput, listItem);
+			this.searchFor(userInput, listItem);
 
 			//If RegEx detected
-			if (pos[0] != -1) {
+			if (this.pos[0] != -1) {
 
 				console.log("Unassignable Item #" + j + ": " + listItem);
 				unIdentifiedItems++;
@@ -313,19 +353,18 @@ function biminiItemDecoder () {
 	//Clear out all data that you have parsed so far.
 	this.wipeData = function () {
 		
-		pos = [-1, -1];
-		objectList = [];
-		unAssignables = [];
+		this.pos = [-1, -1];
+		this.objectList = [];
+		this.unAssignables = [];
 
 		console.clear();
-		console.log("There are now " + objectList.length + " identified items.");
-		console.log("There are now " + unAssignables.length + " unidentified items.");
-		console.log("There are now " + (objectList.length + unAssignables.length) + " total items.");
+		console.log("There are now " + this.objectList.length + " identified items.");
+		console.log("There are now " + this.unAssignables.length + " unidentified items.");
+		console.log("There are now " + (this.objectList.length + this.unAssignables.length) + " total items.");
 		console.log("All data has been wiped.");
 
 		return this;
 	};
-
 }
 
 /*
