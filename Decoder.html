@@ -28,12 +28,14 @@
 	<!-- BUTTONS -->
 	<button onclick = "decoder.parseCSVFile()">Parse CSV File</button>
 	<button onclick = "decoder.logThisItem(document.getElementById('userInput').value.toUpperCase().toString())">Find Your Item</button>
+	<button onclick = "decoder.test(document.getElementById('testInput').value.toUpperCase().toString())">Test Input</button>
 	<button onclick = "decoder.wipeData()">Wipe Data</button>
 	<!-- USER INPUT -->
 	<input id = "fileSystem" type = "file">
 
 	<form>
-		<input type = "text" id = "userInput"></input>
+		<input type = "text" id = "userInput" value = "Search..."></input>
+		<input type = "text" id = "testInput" value = "Test for..."></input>
 	</form>
 </body>
 </html>
