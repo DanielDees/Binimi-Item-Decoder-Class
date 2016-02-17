@@ -38,13 +38,14 @@ function biminiItemDecoder () {
 	
 		//Get file selected	
 		var file = document.getElementById("fileSystem").files[0];
+		var thisThing = this;
 
 		//Get data from file and place in array
 		Papa.parse(file, {
 			complete: function(results) {
 
 				//Assign values to data
-				decoder.loop(results.data);
+				thisThing.loop(results.data);
 			}
 		});
 
