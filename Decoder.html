@@ -1,0 +1,39 @@
+<DOCTYPE!>
+<html>
+<head>
+	<title>Kevin Project</title>
+</head>
+<style type="text/css">
+
+	button {
+
+		height: 75px;
+		width: 150px;
+		margin: 3px;
+		font-size: 20px;
+		display: block;
+	}
+
+</style>
+<body>
+	<!-- SCRIPTS -->
+	<script type="text/javascript" src = "papa.min.js"></script>
+	<script type="text/javascript" src = "class.js"></script>
+	<script type="text/javascript">
+
+	//Create an instance of the Item decoder
+	var decoder = new biminiItemDecoder();
+
+	</script>
+	<!-- BUTTONS -->
+	<button onclick = "decoder.parseCSVFile()">Parse CSV File</button>
+	<button onclick = "decoder.logThisItem(document.getElementById('userInput').value.toUpperCase().toString())">Find Your Item</button>
+	<button onclick = "decoder.wipeData()">Wipe Data</button>
+	<!-- USER INPUT -->
+	<input id = "fileSystem" type = "file">
+
+	<form>
+		<input type = "text" id = "userInput"></input>
+	</form>
+</body>
+</html>
